@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from config import MODEL_CONFIG
 
 
 class ClimateNet(nn.Module):
@@ -158,18 +159,7 @@ def create_model(device='cuda'):
     Returns:
         model: 模型实例
     """
-    model = ClimateNet(
-        input_3d_channels=10,
-        input_3d_height=30,
-        input_2d_features=4,
-        input_coord_features=3,
-        output_3d_channels=10,
-        output_3d_height=30,
-        output_2d_features=7,
-        conv_channels=[32, 64, 128],
-        mlp_hidden_dims=[512, 256, 512]
-    )
-    
+    model = ClimateNet(**MODEL_CONFIG)
     model = model.to(device)
     
     # 打印模型信息

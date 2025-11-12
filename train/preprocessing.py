@@ -344,4 +344,11 @@ print("\nSaving statistics...")
 np.save('training_stats.npy', stats, allow_pickle=True)
 print("Statistics saved to 'training_stats.npy'")
 
+# 保存训练掩码（用于区分训练集和测试集）
+print("\nSaving training mask...")
+np.save('training_mask.npy', training_mask)
+print("Training mask saved to 'training_mask.npy'")
+print(f"  Training samples (True): {training_mask.sum()}")
+print(f"  Test samples (False): {(~training_mask).sum()}")
+
 print("\nDone!")
