@@ -1,34 +1,18 @@
 import math
+import os
 from pathlib import Path
 import xarray as xr
 import numpy as np
 import dask
+from config import DATA_FILES, INPUTS_3D, INPUTS_2D, OUTPUTS_3D, OUTPUTS_2D, N_LEVELS
 
 
-data = ["/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-13-00800.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-13-22400.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-13-44000.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-13-65600.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-14-00800.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-14-22400.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-14-44000.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-14-65600.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-15-00800.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-15-22400.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-15-44000.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-15-65600.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-16-00800.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-16-22400.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-16-44000.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-16-65600.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-17-00800.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-17-22400.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-17-44000.nc",
-            "/home/ET/mnwong/ML/data/Qobs10_SPCAMM.000.cam.h1.0001-02-17-65600.nc"]
-inputs_variable3D = ['U', 'V', 'T', 'Q', 'CLDLIQ', 'CLDICE', 'PMID', 'DPRES', 'Z3', 'HEIGHT']
-inputs_variable2D = ['TAUX', 'TAUY', 'SHFLX', 'LHFLX']
-output_variable3D = ['SPDQ', 'SPDQC', 'SPDQI', 'SPNC', 'SPNI', 'SPDT', 'CLOUD', 'CLOUDTOP', 'QRL', 'QRS']
-output_variable2D = ['PRECC', 'PRECSC', 'FSNT', 'FSDS', 'FSNS', 'FLNS', 'FLNT']
+# 从 config.py 导入配置
+data = DATA_FILES
+inputs_variable3D = INPUTS_3D
+inputs_variable2D = INPUTS_2D
+output_variable3D = OUTPUTS_3D
+output_variable2D = OUTPUTS_2D
 
 
 def create_spatial_mask(lats, lons, lat_threshold=60):
@@ -341,13 +325,16 @@ for var_name in output_variable3D:
 
 # 保存统计信息（使用 allow_pickle=True 保存字典）
 print("\nSaving statistics...")
-np.save('training_stats.npy', stats, allow_pickle=True)
-print("Statistics saved to 'training_stats.npy'")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+stats_path = os.path.join(script_dir, 'training_stats.npy')
+mask_path = os.path.join(script_dir, 'training_mask.npy')
+np.save(stats_path, stats, allow_pickle=True)
+print(f"Statistics saved to '{stats_path}'")
 
 # 保存训练掩码（用于区分训练集和测试集）
 print("\nSaving training mask...")
-np.save('training_mask.npy', training_mask)
-print("Training mask saved to 'training_mask.npy'")
+np.save(mask_path, training_mask)
+print(f"Training mask saved to '{mask_path}'")
 print(f"  Training samples (True): {training_mask.sum()}")
 print(f"  Test samples (False): {(~training_mask).sum()}")
 
